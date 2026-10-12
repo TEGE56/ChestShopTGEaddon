@@ -844,4 +844,8 @@ For issues, unexpected behavior, or feature requests, open an issue in this GitH
 
 ## License
 
-Add a `LICENSE` file to this repository if you intend to distribute ChestShopTGEaddon publicly. The permissions to use, modify, and redistribute the plugin depend on the license you choose.
+ChestShopTGEaddon is licensed under the [MIT License](LICENSE).
+
+You are free to use, copy, modify, merge, publish, distribute, sublicense, and sell copies of the software, provided that the original copyright notice and permission notice are included in all copies or substantial portions of the software.
+
+See the [LICENSE](LICENSE) file for the full license text.
