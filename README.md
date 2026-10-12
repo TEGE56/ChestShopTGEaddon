@@ -2,13 +2,14 @@
 
 An addon for **ChestShop** that enhances shop displays with automatic hologram item displays, fully customizable shop signs, and interactive Gambling Chests with animated prizes.
 
-Gambling Chests feature configurable prices, reward probabilities, bonus rewards, sound effects, animations, and automatic reward generation. The economy integration is currently provided exclusively by XConomy.
+Gambling Chests feature configurable prices, reward items, reward probabilities, bonus rewards, sound effects, animation timing, and hologram height. All rewards and their chances of being awarded can be customized in the config. You can also automatically generate rewards from survival items and use a blacklist to exclude specific items from the generated reward pool. The economy integration currently supports XConomy only.
 
 ## Features
 
 ### Shop Holograms
 
 - Automatically displays shop items above regular ChestShop shops in hologram displays.
+- Looking at a shop sign shows the item's details in the hologram, including its name, enchantments and their levels, and remaining durability when applicable.
 - Requires no additional setup.
 - Works automatically alongside ChestShop.
 - Regular shop holograms cannot currently be customized through `config.yml`.
@@ -80,13 +81,7 @@ The command works as follows:
 
 The command supports tab completion. Senders with the reload permission can receive the `reload` suggestion when entering the first argument.
 
-Reload messages can be customized in `config.yml` under `commands.reload`.
-
-Example:
-
-```text
-/chestshoptgeaddon reload
-```
+Reload command messages can be customized in `config.yml` under `commands.reload`, including the messages shown when reloading succeeds, fails, or the sender lacks the required permission.
 
 ## Permissions
 
