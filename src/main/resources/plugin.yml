@@ -1,0 +1,27 @@
+name: ChestShopTGEaddon
+version: '${version}'
+
+main: me.chestshoptgeaddon.chestShopTGEaddon.ChestShopTGEaddon
+api-version: '26.3'
+depend:
+  - ChestShop
+  - XConomy
+load: POSTWORLD
+
+commands:
+  chestshoptgeaddon:
+    description: Reloads the ChestShopTGEaddon configuration.
+    usage: /chestshoptgeaddon reload
+
+permissions:
+  chestshoptgeaddon.gamble.admin:
+    description: Can create and destroy gambling chests.
+    default: op
+
+  chestshoptgeaddon.gamble.use:
+    description: Can use gambling chests.
+    default: op
+
+  chestshoptgeaddon.reload:
+    description: Can reload the ChestShopTGEaddon configuration.
+    default: op

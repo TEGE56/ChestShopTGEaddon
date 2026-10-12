@@ -1,0 +1,207 @@
+# Messages shown when using /chestshoptgeaddon reload.
+# Use & color codes. This command requires the chestshoptgeaddon.reload permission.
+commands:
+  reload:
+    success: "&aChestShopTGEaddon configuration reloaded."
+    no-permission: "&cYou do not have permission to use this command."
+    usage: "&cUsage: /chestshoptgeaddon reload"
+    failure: "&cConfiguration reload failed. Check the console."
+
+# Merge this shop-display section into your existing config.yml.
+# Types are named from the player's point of view:
+# buy = the player buys from the shop; sell = the player sells to the shop;
+# both = the shop supports both directions.
+shop-display:
+  sign:
+    # Set empty to hide the currency suffix.
+    currency-suffix: ""
+    # Placeholders: %buy_price%, %sell_price%, %price%, %currency%,
+    # %quantity%, %trade_quantity%, and %owner%.
+    # Both quantity placeholders return only the number. Add your own text,
+    # for example: "&fBuy: %quantity%".
+    # Every format must contain exactly four lines. Use & color codes.
+    regular:
+      buy:
+        lines:
+          - "&aShop &8| &bBuy"
+          - "&fBuy: %quantity%"
+          - "&a%price% %currency%"
+          - "&7%owner%"
+      sell:
+        lines:
+          - "&aShop &8| &eSell"
+          - "&fSell: %quantity%"
+          - "&a%price% %currency%"
+          - "&7%owner%"
+      both:
+        lines:
+          - "&aShop &8| &bBuy &8/ &eSell"
+          - "&fQuantity: %quantity%"
+          - "&bBuy: %buy_price% &8/ &eSell: %sell_price%"
+          - "&7%owner%"
+    admin:
+      buy:
+        lines:
+          - "&4AdminShop &8| &bBuy"
+          - "&fBuy: %quantity%"
+          - "&a%price% %currency%"
+          - ""
+      sell:
+        lines:
+          - "&4AdminShop &8| &eSell"
+          - "&fSell: %quantity%"
+          - "&a%price% %currency%"
+          - ""
+      both:
+        lines:
+          - "&4AdminShop &8| &bBuy &8/ &eSell"
+          - "&fQuantity: %quantity%"
+          - "&bBuy: %buy_price% &8/ &eSell: %sell_price%"
+          - ""
+
+gambling:
+  # One play costs this amount in the XConomy currency.
+  price: 100.0
+
+  # Player-facing gambling messages. Use & color codes.
+  # Available placeholders: %price%, %amount%, %item%.
+  messages:
+    no-create-permission: "&cYou do not have permission to create gambling chests."
+    chest-required: "&cPlace the sign next to a chest."
+    invalid-price-create: "&cThe configured gambling price is invalid."
+    sign-created: "&aGambling sign created. Price: &e%price%"
+    no-use-permission: "&cYou do not have permission to use gambling chests."
+    gamble-in-progress: "&eThis chest is already running a game. Please wait."
+    inventory-full: "&cYour inventory is full. Make some room first."
+    invalid-price-use: "&cThe gambling price is not configured correctly."
+    economy-unavailable: "&cXConomy is not available."
+    chest-not-found: "&cNo gambling chest was found next to the sign."
+    no-rewards: "&cThe gambling reward table contains no valid rewards."
+    account-not-found: "&cYour XConomy account could not be found."
+    not-enough-money: "&cYou do not have enough money. Price: &e%price%"
+    payment-failed: "&cPayment failed. Please try again later."
+    no-prize: "&7You paid &a%price%&7, but did not win a prize this time."
+    prize-won: "&7You paid &a%price% &7and won &f%amount%x %item%&7!"
+    refund-failed: "&cThe reward could not be delivered and the payment could not be refunded. Contact an administrator."
+    payment-refunded: "&aYour payment has been refunded."
+    no-destroy-permission: "&cOnly an admin can destroy a gambling chest."
+
+  sign:
+    lines:
+      - "&6[Gamble]"
+      - "&ePrice: &a%price%"
+      - "&dRandom prize"
+      - "&7Right-click"
+
+  # The chest is only the machine location and can stay empty.
+  # The display switches among configured prize entries at this interval.
+  # The preview chooses entries uniformly; reward chances control the prize selection.
+  display:
+    change-seconds: 1
+    # Fixed Y offset for every preview item, measured from the bottom of the chest block.
+    height: 1.15
+    # Small bob animation around the fixed height.
+    bob-height: 0.03
+
+  # A winning play spins through possible prizes, then shows the won item.
+  animation:
+    duration-seconds: 3.0
+    result-display-seconds: 1.5
+
+
+  sounds:
+    # Set any sound to an empty string "" to disable it completely.
+    # Example:
+    #   spin-start: ""
+    #   spin-tick: ""
+    #   win: ""
+    #   no-prize: ""
+    #
+    # If a sound key is empty, no sound will be played.
+    spin-start: "minecraft:block.note_block.hat"
+    spin-tick: "minecraft:block.note_block.pling"
+    win: "minecraft:entity.player.levelup"
+    no-prize: "minecraft:block.anvil.land"
+
+    # Each sound has its own adjustable volume (1.0 is default)
+    # 1.0 matches the original behavior before volume support was added.
+    # Lower values make the sound quieter; higher values make it louder.
+    # You can safely set values above 1.0 if you want the sound to be louder than default.
+    # Set to 0.0 to mute a sound without removing its key.
+    #
+    # Example:
+    #   spin-tick-volume: 0.5   # Half volume
+    #   win-volume: 1.0         # Default volume
+    #   spin-start-volume: 2.0  # Louder than default
+    spin-start-volume: 1.0
+    spin-tick-volume: 1.0
+    win-volume: 1.0
+    no-prize-volume: 1.0
+
+  rewards:
+    # Set the chance of a paid game giving no prize here; do NOT add "no prize" to items.
+    # Example: 10.0 means 10% no prize; the other 90% is used to select a listed item.
+    no-prize-chance: 10.0
+
+    # These materials can never be won, even if they appear in the items list.
+    # Netherite gear is intentionally allowed. Add/remove Bukkit material names here.
+    blacklist:
+      - ELYTRA
+      - BEDROCK
+      - DRAGON_EGG
+      - BARRIER
+      - COMMAND_BLOCK
+      - CHAIN_COMMAND_BLOCK
+      - REPEATING_COMMAND_BLOCK
+      - COMMAND_BLOCK_MINECART
+      - STRUCTURE_BLOCK
+      - STRUCTURE_VOID
+      - JIGSAW
+      - DEBUG_STICK
+      - KNOWLEDGE_BOOK
+      - LIGHT
+      - SPAWNER
+      - TRIAL_SPAWNER
+      - END_PORTAL_FRAME
+      - END_PORTAL
+      - END_GATEWAY
+      - NETHER_PORTAL
+      - MOVING_PISTON
+      - PISTON_HEAD
+      - BUDDING_AMETHYST
+      - REINFORCED_DEEPSLATE
+      - NETHER_STAR
+      - BEACON
+      - END_CRYSTAL
+      - VAULT
+
+    # Set true to generate and replace the reward list once.
+    # This generates EVERY obtainable item material supported by the server,
+    # except materials listed in the blacklist.
+    # After successful generation, this setting changes back to false.
+    # When false, no rewards are generated automatically, even if items is empty.
+    # An empty reward list disables gambling until you add rewards.
+    generate-all-survival-items: false
+
+    # MANUAL EDITING:
+    # The [] below means "empty list". Remove that whole line and replace it
+    # with uncommented entries in this format:
+    #
+    # items:
+    #   - material: TORCH
+    #     amount: 16       # How many the player receives; must fit one stack.
+    #     chance: 70.00    # Chance share among prize outcomes.
+    #   - material: DIAMOND
+    #     amount: 1
+    #     chance: 30.00    # Together these examples total 100% of prize outcomes.
+    #     bonus-amount: 2  # Optional: alternate amount if bonus-chance succeeds.
+    #     bonus-chance: 2.0  # 2.0 means 2% when DIAMOND is selected.
+    #
+    # Chance values may sum above 100; the plugin normalizes them proportionally.
+    # For example, chance 700 and chance 300 have the same 70/30 split as 70 and 30.
+    # If chances sum to exactly 100, they directly show each item's share of prizes.
+    # Set no-prize-chance to 0.0 to always award one listed item (if rewards are valid).
+    # Use Bukkit material names in uppercase, e.g. NETHERITE_INGOT.
+    # Do not keep items: [] when adding entries. Set the generator above false.
+    # Materials in blacklist are never awarded. The display uses material/amount.
+    items: []
