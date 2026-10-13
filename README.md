@@ -39,12 +39,14 @@ Gambling Chests feature configurable prices, reward items, reward probabilities,
 - Customizable sound effects with individual volume controls.
 - Permission-based creation, use, and destruction.
 
-## Requirements
+### Requirements
 
-ChestShopTGEaddon requires the following plugins:
+- **ChestShop** — required for the plugin's shop features.
+- **XConomy** — required only for Gambling Chests.
 
-- **ChestShop** — provides the shop functionality.
-- **XConomy** — provides the economy integration for Gambling Chests.
+Regular shop holograms and customizable shop signs work without XConomy. Gambling Chests require XConomy to handle prices, player balances, and payments.
+
+Other economy plugins, including EssentialsX Economy, are not supported for Gambling Chest transactions.
 
 **XConomy is currently the only supported economy plugin.** Other economy plugins are not supported at this time.
 
