@@ -5,7 +5,10 @@ main: me.chestshoptgeaddon.chestShopTGEaddon.ChestShopTGEaddon
 api-version: '26.3'
 depend:
   - ChestShop
+
+softdepend:
   - XConomy
+
 load: POSTWORLD
 
 commands:

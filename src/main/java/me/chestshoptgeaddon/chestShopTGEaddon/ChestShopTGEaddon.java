@@ -2,6 +2,7 @@ package me.chestshoptgeaddon.chestShopTGEaddon;
 
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.PluginManager;
 
 public final class ChestShopTGEaddon extends JavaPlugin {
 
@@ -13,33 +14,45 @@ public final class ChestShopTGEaddon extends JavaPlugin {
     public void onEnable() {
         saveDefaultConfig();
 
-        Plugin chestShop = getServer()
-                .getPluginManager()
-                .getPlugin("ChestShop");
+        PluginManager pluginManager = getServer().getPluginManager();
 
-        if (chestShop == null) {
+        Plugin chestShop = pluginManager.getPlugin("ChestShop");
+        if (chestShop == null || !chestShop.isEnabled()) {
             getLogger().severe("ChestShop was not found. Disabling ChestShopTGEaddon.");
-            getServer().getPluginManager().disablePlugin(this);
+            pluginManager.disablePlugin(this);
             return;
         }
 
-        GamblingRewardDefaults.generateIfRequested(this);
-
         shopDisplayListener = new ShopDisplayListener(this);
-        getServer().getPluginManager().registerEvents(shopDisplayListener, this);
+        pluginManager.registerEvents(shopDisplayListener, this);
+        shopDisplayListener.restoreLoadedDisplays();
 
-        gamblingDisplayManager = new GamblingDisplayManager(this);
-        getServer().getPluginManager().registerEvents(gamblingDisplayManager, this);
+        Plugin xconomy = pluginManager.getPlugin("XConomy");
 
-        gamblingShopListener = new GamblingShopListener(this, gamblingDisplayManager);
-        getServer().getPluginManager().registerEvents(gamblingShopListener, this);
+        if (xconomy != null && xconomy.isEnabled()) {
+            GamblingRewardDefaults.generateIfRequested(this);
+
+            gamblingDisplayManager = new GamblingDisplayManager(this);
+            pluginManager.registerEvents(gamblingDisplayManager, this);
+
+            gamblingShopListener = new GamblingShopListener(
+                    this, gamblingDisplayManager
+            );
+            pluginManager.registerEvents(gamblingShopListener, this);
+
+            gamblingDisplayManager.restoreLoadedDisplays();
+
+            getLogger().info("Gambling Chests enabled (XConomy found).");
+        } else {
+            getLogger().warning(
+                    "XConomy was not found. Gambling Chests are disabled. "
+                            + "Regular shop features remain enabled."
+            );
+        }
 
         ChestShopTGEaddonCommand command = new ChestShopTGEaddonCommand(this);
         getCommand("chestshoptgeaddon").setExecutor(command);
         getCommand("chestshoptgeaddon").setTabCompleter(command);
-
-        shopDisplayListener.restoreLoadedDisplays();
-        gamblingDisplayManager.restoreLoadedDisplays();
     }
 
     @Override
@@ -54,10 +67,15 @@ public final class ChestShopTGEaddon extends JavaPlugin {
 
     void reloadPluginConfiguration() {
         reloadConfig();
-        GamblingRewardDefaults.generateIfRequested(this);
-        gamblingDisplayManager.reloadSettings();
-        gamblingShopListener.refreshLoadedSignTemplates();
-        shopDisplayListener.refreshFormattedSigns();
+
+        if (gamblingDisplayManager != null) {
+            GamblingRewardDefaults.generateIfRequested(this);
+            gamblingDisplayManager.reloadSettings();
+            gamblingShopListener.refreshLoadedSignTemplates();
+        }
+
+        if (shopDisplayListener != null) {
+            shopDisplayListener.refreshFormattedSigns();
+        }
     }
 }
-
