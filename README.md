@@ -4,6 +4,8 @@ An addon for **ChestShop** that enhances shop displays with automatic hologram i
 
 Gambling Chests feature configurable prices, reward items, reward probabilities, bonus rewards, sound effects, animation timing, and hologram height. All rewards and their chances of being awarded can be customized in the config. You can also automatically generate rewards from survival items and use a blacklist to exclude specific items from the generated reward pool. The economy integration currently supports XConomy only.
 
+https://www.youtube.com/watch?v=NL-X-MAjWx8
+
 ## Features
 
 ### Shop Holograms
