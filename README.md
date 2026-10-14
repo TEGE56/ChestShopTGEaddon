@@ -1,8 +1,13 @@
 # ChestShopTGEaddon
+An addon for ChestShop that enhances shop displays with automatic hologram item displays, fully customizable shop signs, and interactive Gambling Chests with animated prizes.
 
-An addon for **ChestShop** that enhances shop displays with automatic hologram item displays, fully customizable shop signs, and interactive Gambling Chests with animated prizes.
+Gambling Chests feature configurable prices, reward items, reward probabilities, bonus rewards, sound effects, animation timing, and hologram height. All rewards and their chances of being awarded can be customized in the config. You can also automatically generate rewards from survival items and use a blacklist to exclude specific items from the generated reward pool.
 
-Gambling Chests feature configurable prices, reward items, reward probabilities, bonus rewards, sound effects, animation timing, and hologram height. All rewards and their chances of being awarded can be customized in the config. You can also automatically generate rewards from survival items and use a blacklist to exclude specific items from the generated reward pool. The economy integration currently supports XConomy only.
+Economy support:
+
+Shop Holograms & Customizable Shop Signs: Works with any economy plugin supported by ChestShop, including EssentialsX Economy and others.
+
+Gambling Chests: Require XConomy only for handling prices, balances, and payments.
 
 https://www.youtube.com/watch?v=NL-X-MAjWx8
 
