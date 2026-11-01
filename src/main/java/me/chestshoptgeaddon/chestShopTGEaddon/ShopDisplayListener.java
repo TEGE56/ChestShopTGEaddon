@@ -56,6 +56,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.bukkit.inventory.meta.PotionMeta;
 
 public final class ShopDisplayListener implements Listener {
 
@@ -641,20 +642,27 @@ public final class ShopDisplayListener implements Listener {
     }
 
     private void createDisplay(Block signBlock, Container container, ItemStack item) {
+        Block chestBlock = container.getBlock();
+        Block blockAbove = chestBlock.getRelative(0, 1, 0);
+        boolean canShowItem = !blockAbove.getType().isSolid();
+
         Location chestLocation = container.getLocation();
         double itemHeight = item.getType().isBlock() ? 0.95 : 1.10;
         Location itemLocation = chestLocation.clone().add(0.5, itemHeight, 0.5);
         Location textLocation = chestLocation.clone().add(0.5, 1.6, 0.5);
         String tag = displayTag(signBlock);
 
-        ItemDisplay itemDisplay = chestLocation.getWorld()
-                .spawn(itemLocation, ItemDisplay.class);
-        itemDisplay.setItemStack(item.clone());
-        itemDisplay.setItemDisplayTransform(ItemDisplay.ItemDisplayTransform.GROUND);
-        itemDisplay.setBillboard(Display.Billboard.FIXED);
-        itemDisplay.setTeleportDuration(2);
-        itemDisplay.setPersistent(true);
-        itemDisplay.addScoreboardTag(tag);
+        ItemDisplay itemDisplay = null;
+        if (canShowItem) {
+            itemDisplay = chestLocation.getWorld()
+                    .spawn(itemLocation, ItemDisplay.class);
+            itemDisplay.setItemStack(item.clone());
+            itemDisplay.setItemDisplayTransform(ItemDisplay.ItemDisplayTransform.GROUND);
+            itemDisplay.setBillboard(Display.Billboard.FIXED);
+            itemDisplay.setTeleportDuration(2);
+            itemDisplay.setPersistent(true);
+            itemDisplay.addScoreboardTag(tag);
+        }
 
         TextDisplay textDisplay = chestLocation.getWorld()
                 .spawn(textLocation, TextDisplay.class);
@@ -712,10 +720,6 @@ public final class ShopDisplayListener implements Listener {
         }
 
         Player player = event.getPlayer();
-        // ChestShop may send its own sign update during this interaction.
-        // Send our client-side format at MONITOR priority so it is the last
-        // sign update in the normal event flow, then keep delayed fallbacks
-        // for ChestShop versions that send another update later in the tick.
         restoreFormattedSignFor(player, shopSign);
         for (long delay : new long[]{1L, 3L, 10L}) {
             Bukkit.getScheduler().runTaskLater(plugin,
@@ -892,44 +896,76 @@ public final class ShopDisplayListener implements Listener {
     }
 
     private Component makeItemLabel(ItemStack item, int quantity) {
+        var itemMeta = item.getItemMeta();
         Component label;
-        if (item.hasItemMeta() && item.getItemMeta().hasDisplayName()) {
-            label = item.getItemMeta().displayName();
+
+        if (itemMeta != null && itemMeta.hasDisplayName()) {
+            label = itemMeta.displayName();
+        } else if (itemMeta instanceof PotionMeta potionMeta
+                && potionMeta.getBasePotionType() != null) {
+            var effects = potionMeta.getBasePotionType().getPotionEffects();
+
+            if (effects.isEmpty()) {
+                label = Component.text(potionMeta.getBasePotionType().name());
+            } else {
+                label = Component.empty();
+                boolean firstEffect = true;
+
+                for (var effect : effects) {
+                    if (!firstEffect) {
+                        label = label.append(Component.text(", "));
+                    }
+
+                    label = label
+                            .append(Component.translatable(effect.getType().translationKey()))
+                            .append(Component.text(" " + (effect.getAmplifier() + 1)));
+
+                    firstEffect = false;
+                }
+            }
         } else {
             label = Component.translatable(item.getType().translationKey());
         }
 
-        label = label.append(Component.text(" (x" + quantity + ")", NamedTextColor.GRAY));
+        label = label.append(Component.text(" (x" + quantity + ")"));
 
         Map<Enchantment, Integer> enchantments =
                 new LinkedHashMap<>(item.getEnchantments());
-        if (item.getItemMeta() instanceof EnchantmentStorageMeta bookMeta) {
+
+        if (itemMeta instanceof EnchantmentStorageMeta bookMeta) {
             enchantments.putAll(bookMeta.getStoredEnchants());
         }
+
         if (!enchantments.isEmpty()) {
             Component enchantmentLine = Component.empty();
             boolean first = true;
+
             for (Map.Entry<Enchantment, Integer> entry : enchantments.entrySet()) {
                 if (!first) {
                     enchantmentLine = enchantmentLine.append(Component.text(", "));
                 }
+
                 enchantmentLine = enchantmentLine.append(
                         entry.getKey().displayName(entry.getValue())
                 );
                 first = false;
             }
+
             label = label.append(Component.newline()).append(enchantmentLine);
         }
 
-        if (item.getItemMeta() instanceof Damageable damageable) {
+        if (itemMeta instanceof Damageable damageable) {
             int maximumDurability = item.getType().getMaxDurability();
+
             if (maximumDurability > 0) {
                 int remainingDurability = Math.max(
                         0, maximumDurability - damageable.getDamage()
                 );
+
                 label = label.append(Component.newline()).append(
-                        Component.text("Durability: "
-                                + remainingDurability + "/" + maximumDurability)
+                        Component.text(
+                                "Durability: " + remainingDurability + "/" + maximumDurability
+                        )
                 );
             }
         }
@@ -987,10 +1023,12 @@ public final class ShopDisplayListener implements Listener {
         if (prices.isDualPrice()) {
             return "both";
         }
-        boolean playerBuys = adminShop
-                ? prices.buyPrice() != null
-                : prices.sellPrice() != null;
-        return playerBuys ? "buy" : "sell";
+
+        if (adminShop) {
+            return prices.buyPrice() != null ? "buy" : "sell";
+        }
+
+        return prices.buyPrice() != null ? "buy" : "sell";
     }
 
     private void sendFormattedSign(Player player, Block signBlock) {
@@ -1009,7 +1047,6 @@ public final class ShopDisplayListener implements Listener {
         List<String> templates = plugin.getConfig().getStringList(
                 shopPath + "." + shopType + ".lines");
         if (templates.isEmpty()) {
-            // Backward compatibility for configs that still use regular.lines/admin.lines.
             templates = plugin.getConfig().getStringList(shopPath + ".lines");
         }
         if (templates.isEmpty()) {
@@ -1128,14 +1165,15 @@ public final class ShopDisplayListener implements Listener {
         private void start(String tag) {
             task = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
                 if (!(signBlock.getState() instanceof Sign)
-                        || !itemDisplay.isValid() || !textDisplay.isValid()) {
+                        || (itemDisplay != null && !itemDisplay.isValid())
+                        || !textDisplay.isValid()) {
                     stop();
                     displays.remove(tag, this);
                     return;
                 }
 
                 ticks += 2;
-                if (itemDisplay.isValid()) {
+                if (itemDisplay != null && itemDisplay.isValid()) {
                     double bob = Math.sin(ticks * 0.08) * 0.08;
                     float yaw = (ticks * 3.0f) % 360.0f;
                     Location next = itemBase.clone().add(0, bob, 0);
@@ -1153,7 +1191,8 @@ public final class ShopDisplayListener implements Listener {
 
         private boolean isHealthy() {
             return task != null && !task.isCancelled()
-                    && itemDisplay.isValid() && textDisplay.isValid();
+                    && (itemDisplay == null || itemDisplay.isValid())
+                    && textDisplay.isValid();
         }
 
         private void updateSignFormatting() {
